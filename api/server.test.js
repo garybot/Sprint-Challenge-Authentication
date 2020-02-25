@@ -1,9 +1,12 @@
 const server = require('./server.js');
 const request = require('supertest');
 
-
 describe('POST /api/auth/register', () => {
-  const user = {username: "bob", password: "bob"}
+  const user = {username: "test", password: "test"};
+  it('has process.env.NODE_ENV as "testing"', () => {
+    expect(process.env.NODE_ENV).toBe('testing');
+  })
+  // Works once
   // it('returns status 201', async () => {
   //   const response = await request(server)
   //     .post('/api/auth/register')
@@ -28,9 +31,15 @@ describe('POST /api/auth/login', () => {
   });
   it('returns a json object', () => {
     request(server)
-      .post('/api/auth/register')
+      .post('/api/auth/login')
       .send(user)
       .expect('Content-Type', /json/)
+  })
+  it('returns a token', async () => {
+    const response = await request(server)
+      .post('/api/auth/login')
+      .send(user);
+      expect(response.token)
   })
 })
 
@@ -40,8 +49,8 @@ describe('GET /api/jokes/', () => {
     const response = await request(server).get('/api/jokes/');
     expect(response.type).toEqual('application/json');
   });
-  it('returns status 200 ok', async () => {
+  it('returns status 401 when not logged in', async () => {
     const response = await request(server).get('/api/jokes/');
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(401);
   });
 })
